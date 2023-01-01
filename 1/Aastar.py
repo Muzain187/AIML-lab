@@ -16,13 +16,13 @@ def a_star(start, goal, graph):
         if current == goal:
             break
         
-        for next,cost in graph[current]:
+        for node,cost in graph[current]:
             new_cost = cost_so_far[current] + cost
-            if next not in cost_so_far or new_cost < cost_so_far[next]:
-                cost_so_far[next] = new_cost
-                priority = new_cost + (heuristic[goal] + heuristic[next])
-                heapq.heappush(frontier, (priority, next))
-                came_from[next] = current
+            if node not in cost_so_far or new_cost < cost_so_far[node]:
+                cost_so_far[node] = new_cost
+                priority = new_cost + (heuristic[goal] + heuristic[node])
+                heapq.heappush(frontier, (priority, node))
+                came_from[node] = current
     
     print(path)
 
