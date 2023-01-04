@@ -2,9 +2,13 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 x = np.linspace(-5, 5, 1000)
+# print(x)
 y = np.log(np.abs((x ** 2) - 1) + 0.5)
 x = x + np.random.normal(scale=0.05, size=1000) 
+
 plt.scatter(x, y, alpha=0.3)
+# plt.show()
+
 def local_regression(x0, x, y, tau): 
     x0 = np.r_[1, x0]
     x = np.c_[np.ones(len(x)), x]
@@ -26,3 +30,5 @@ def plot_lr(tau):
 
 
 plot_lr(1).show()
+
+
