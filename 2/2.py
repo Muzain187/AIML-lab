@@ -1,80 +1,113 @@
-import heapq
-
-# Represents a node in the search tree
-class Node:
-    def __init__(self, state, cost, heuristic, parent):
-        self.state = state
-        self.cost = cost
-        self.heuristic = heuristic
-        self.parent = parent
-
-    def __lt__(self, other):
-        # Compare nodes based on their total cost
-        return self.cost + self.heuristic < other.cost + other.heuristic
-
-# Represents a graph as a dictionary of nodes
 class Graph:
-    def __init__(self, nodes, edges):
-        self.nodes = nodes
-        self.edges = edges
-
-    def get_successors(self, node):
-        return self.edges[node]
-
-# AO* search algorithm
-def ao_star_search(graph, start, goal, heuristic, weight=1.0):
-    # Create a priority queue for storing nodes
-    frontier = []
-    heapq.heappush(frontier, (0, Node(start, 0, heuristic(start), None)))
-
-    # Create a set for storing visited nodes
-    visited = set()
-
-    while frontier:
-        # Get the node with the lowest total cost
-        current_cost, current_node = heapq.heappop(frontier)
-
-        # If the node is the goal, return the path
-        if current_node.state == goal:
-            path = []
-            while current_node is not None:
-                path.append(current_node.state)
-                current_node = current_node.parent
-            return path[::-1]
-
-        # Mark the node as visited
-        visited.add(current_node.state)
-
-        # Add the neighboring nodes to the queue
-        for state, cost in graph.get_successors(current_node.state):
-            if state not in visited:
-                total_cost = current_node.cost + cost + weight * heuristic(state)
-                heapq.heappush(frontier, (total_cost, Node(state, current_node.cost + cost, heuristic(state), current_node)))
-
-# Example usage
-nodes = ['A', 'B', 'C', 'D', 'E']
-edges = {
-    'A': [[('B', 1),('F',7)], ('C', 2)],
-    'B': [('D', 3), ('E', 4)],
-    'C': [('D', 5), ('E', 6)],
-    'D': [],
-    'E': []
+    def __init__(self, graph, heuristicNodeList, startNode):
+        self.graph = graph
+        self.H=heuristicNodeList
+        self.start=startNode
+        self.parent={}
+        self.status={}
+        self.solutionGraph={}
+     
+    def applyAOStar(self):        
+        self.aoStar(self.start, False)
+ 
+    def getNeighbors(self, v):     
+        return self.graph.get(v,'')
+    
+    def getStatus(self,v):         
+        return self.status.get(v,0)
+    
+    def setStatus(self,v, val):   
+        self.status[v]=val
+    
+    def getHeuristicNodeValue(self, n):
+        return self.H.get(n,0)     
+ 
+    def setHeuristicNodeValue(self, n, value):
+        self.H[n]=value            
+        
+    
+    def printSolution(self):
+        print("FOR GRAPH SOLUTION, TRAVERSE THE GRAPH FROM THE START NODE:",self.start)
+        print("----------------------------------------------------------------------")
+        print(self.solutionGraph)
+        print("----------------------------------------------------------------------")
+    
+    def computeMinimumCostChildNodes(self, v):      
+        minimumCost=0
+        costToChildNodeListDict={}
+        costToChildNodeListDict[minimumCost]=[]
+        flag=True
+        for nodeInfoTupleList in self.getNeighbors(v):  
+            cost=0
+            nodeList=[]
+            for c, weight in nodeInfoTupleList:
+                cost=cost+self.getHeuristicNodeValue(c)+weight
+                nodeList.append(c)
+            
+            if flag==True:   
+                minimumCost=cost
+                costToChildNodeListDict[minimumCost]=nodeList      
+                flag=False
+            else:                               
+                if minimumCost>cost:
+                    minimumCost=cost
+                    costToChildNodeListDict[minimumCost]=nodeList  
+                
+              
+        return minimumCost, costToChildNodeListDict[minimumCost]  
+ 
+                     
+    
+    def aoStar(self, v, backTracking):     
+        print("HEURISTIC VALUES  :", self.H)
+        print("SOLUTION GRAPH    :", self.solutionGraph)
+        print("PROCESSING NODE   :", v)
+        
+        if self.getStatus(v) >= 0:       
+            minimumCost, childNodeList = self.computeMinimumCostChildNodes(v)
+            self.setHeuristicNodeValue(v, minimumCost)
+            self.setStatus(v,len(childNodeList))
+            
+            solved=True                   
+            for childNode in childNodeList:
+                self.parent[childNode]=v
+                if self.getStatus(childNode)!=-1:
+                    solved=solved & False
+            
+            if solved==True:            
+                self.setStatus(v,-1)    
+                self.solutionGraph[v]=childNodeList 
+            
+            
+            if v!=self.start:          
+                self.aoStar(self.parent[v], True)   
+                
+            if backTracking==False:    
+                for childNode in childNodeList:  
+                    self.setStatus(childNode,0)   
+                    self.aoStar(childNode, False)
+                 
+        
+                                       
+h1 = {'A': 1, 'B': 6, 'C': 2, 'D': 12, 'E': 2, 'F': 1, 'G': 5, 'H': 7, 'I': 7, 'J': 1, 'T': 3}
+graph1 = {
+    'A': [[('B', 1), ('C', 1)], [('D', 1)]],
+    'B': [[('G', 1)], [('H', 1)]],
+    'C': [[('J', 1)]],
+    'D': [[('E', 1), ('F', 1)]],
+    'G': [[('I', 1)]]   
 }
-graph = Graph(nodes, edges)
-start = 'A'
-goal = 'E'
-
-# A heuristic function that calculates the straight-line distance to the goal
-def heuristic(state):
-    if state == 'A':
-        return 10
-    elif state == 'B':
-        return 9
-    elif state == 'C':
-        return 8
-    elif state == 'D':
-        return 7
-    elif state == 'E':
-        return 6
-
-print(ao_star_search(graph, start, goal, heuristic))
+G1= Graph(graph1, h1, 'A')
+G1.applyAOStar() 
+G1.printSolution()
+ 
+h2 = {'A': 1, 'B': 6, 'C': 12, 'D': 10, 'E': 4, 'F': 4, 'G': 5, 'H': 7}   
+graph2 = {                                         
+    'A': [[('B', 1), ('C', 1)], [('D', 1)]],       
+    'B': [[('G', 1)], [('H', 1)]],                
+    'D': [[('E', 1), ('F', 1)]]                   
+}
+ 
+G2 = Graph(graph2, h2, 'A')                       
+G2.applyAOStar()                                 
+G2.printSolution() 
