@@ -4,7 +4,7 @@ from sklearn.preprocessing import LabelEncoder
 from sklearn.naive_bayes import GaussianNB
 
 
-data = pd.read_csv('p-tennis.csv')
+data = pd.read_csv('6/p-tennis.csv')
 print("The first 5 Values of data is :\n", data.head())
 
 X = data.iloc[:, :-1]
