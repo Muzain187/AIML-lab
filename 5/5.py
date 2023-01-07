@@ -36,7 +36,7 @@ for i in range(1000):
     error = y - layer2
 
     # Backpropagation
-    d_layer2 = error * sigmoid(layer2, deriv=True)
+    d_layer2 = error * sigmoid(layer2, True)
     d_weights1 = np.dot(layer1.T, d_layer2)
     d_layer1 = np.dot(d_layer2, weights1.T) * sigmoid(layer1, deriv=True)
     d_weights0 = np.dot(layer0.T, d_layer1)
@@ -53,7 +53,5 @@ for i in range(1000):
 
 
 # Test the ANN 3 input neurons , 4 hiiden neurons and 1 output neurons
-layer0 = X
-layer1 = sigmoid(np.dot(layer0, weights0))
-layer2 = sigmoid(np.dot(layer1, weights1))
+
 
