@@ -1,48 +1,59 @@
-import numpy as np 
+import numpy as np
 
-inputNeurons=2 
-hiddenlayerNeurons=4 
-outputNeurons=2 
-iteration=6000
+# Activation function and its derivative
+def sigmoid(x, deriv=False):
+    if deriv:
+        return x * (1 - x)
+    return 1 / (1 + np.exp(-x))
 
-input = np.random.randint(1,5,inputNeurons) 
-output = np.array([1.0,0.0]) 
+# Input data
+X = np.array([[0, 0, 1],
+              [0, 1, 1],
+              [1, 0, 1],
+              [1, 1, 1]])
+
+# Output data
+y = np.array([[0],
+              [1],
+              [1],
+              [0]])
+
+# Seed the random number generator
+np.random.seed(1)
+
+# Initialize weights randomly with mean 0
+weights0 = 2 * np.random.random((3, 4)) - 1
+weights1 = 2 * np.random.random((4, 1)) - 1
+
+# Train the ANN
+for i in range(1000):
+    # Forward propagation
+    layer0 = X
+    layer1 = sigmoid(np.dot(layer0, weights0))
+    layer2 = sigmoid(np.dot(layer1, weights1))
+
+    # Compute the error
+    error = y - layer2
+
+    # Backpropagation
+    d_layer2 = error * sigmoid(layer2, deriv=True)
+    d_weights1 = np.dot(layer1.T, d_layer2)
+    d_layer1 = np.dot(d_layer2, weights1.T) * sigmoid(layer1, deriv=True)
+    d_weights0 = np.dot(layer0.T, d_layer1)
+
+    # Update the weights
+    weights1 += d_weights1
+    weights0 += d_weights0
+
+    print('-------Epoch '+str(i)+'---------')
+    print('Input ' + str(X))
+    print('Output ' + str(y))
+    print('Predicted '+ str(layer2))
+    print('-------------------------')
 
 
-hidden_biass=np.random.rand(1,hiddenlayerNeurons) 
-output_bias=np.random.rand(1,outputNeurons) 
+# Test the ANN 3 input neurons , 4 hiiden neurons and 1 output neurons
+layer0 = X
+layer1 = sigmoid(np.dot(layer0, weights0))
+layer2 = sigmoid(np.dot(layer1, weights1))
 
-hidden_weights=np.random.rand(inputNeurons,hiddenlayerNeurons) 
-output_weights=np.random.rand(hiddenlayerNeurons,outputNeurons)
-
-def sigmoid (layer):
-    return 1/(1 + np.exp(-layer))
-
-
-def gradient(layer): 
-    return layer*(1-layer)
-
-for i in range(iteration):
-
-    hidden_layer=np.dot(input,hidden_weights) 
-    hidden_layer=sigmoid(hidden_layer+hidden_biass)
-
-    output_layer=np.dot(hidden_layer,output_weights) 
-    output_layer=sigmoid(output_layer+output_bias)
-
-    error = (output-output_layer) 
-
-    gradient_outputLayer=gradient(output_layer)
-    
-    error_terms_output=gradient_outputLayer * error 
-    error_terms_hidden=gradient(hidden_layer)*np.dot(error_terms_output,output_weights.T)
-
-    gradient_hidden_weights = np.dot(input.reshape(inputNeurons,1),error_terms_hidden.reshape(1,hiddenlayerNeurons))
-    gradient_ouput_weights = np.dot(hidden_layer.reshape(hiddenlayerNeurons,1),error_terms_output.reshape(1,outputNeurons))
-
-    hidden_weights = hidden_weights + 0.05*gradient_hidden_weights 
-    output_weights = output_weights + 0.05*gradient_ouput_weights 
-    if i<50 or i>iteration-50:
-        print("**********************") 
-        print("iteration:",i,"::::",error) 
-        print("###output########",output_layer)

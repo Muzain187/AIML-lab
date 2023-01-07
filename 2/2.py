@@ -40,7 +40,7 @@ class Graph:
             cost = 0
             nodeList = []
             for node, weight in nodeInfoTupleList:
-                cost = cost+self.getHeuristicNodeValue(node)+weight
+                cost = cost + self.getHeuristicNodeValue(node) + weight
                 nodeList.append(node)
 
             if flag == True or minimumCost > cost:

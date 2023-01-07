@@ -13,7 +13,7 @@ def a_star(start, goal, graph):
         current = heapq.heappop(frontier)[1]
         path.append(current)
         
-        if current == goal:
+        if current == goal:  
             break
         
         for node,cost in graph[current]:
